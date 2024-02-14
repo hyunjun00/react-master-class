@@ -6,7 +6,7 @@ function User() {
   return (
     <div>
       <h1>
-        User with it {userId} is named: {users[Number(userId) - 1].name}
+        User with id {userId} is named: {users[Number(userId) - 1].name}
       </h1>
       <hr />
       <Link to="followers">See followers</Link>
@@ -14,5 +14,4 @@ function User() {
     </div>
   );
 }
-
 export default User;
