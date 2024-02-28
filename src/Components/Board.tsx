@@ -2,7 +2,8 @@ import { Droppable } from "react-beautiful-dnd";
 import DraggableCard from "./DraggableCard";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
-import { ITodo } from "../atoms";
+import { ITodo, toDoState } from "../atoms";
+import { useSetRecoilState } from "recoil";
 
 const Wrapper = styled.div`
   width: 300px;
@@ -23,9 +24,9 @@ const Title = styled.h2`
 
 const Area = styled.div<IAreaProps>`
   background-color: ${(props) =>
-    props.isDraggingOver
+    props.$isDraggingOver
       ? "#dfe6e9"
-      : props.isDraggingFromThis
+      : props.$isDraggingFromThis
       ? "#b2bec3"
       : "transparent"};
   flex-grow: 1;
@@ -46,8 +47,8 @@ interface IBoardProps {
 }
 
 interface IAreaProps {
-  isDraggingFromThis: boolean;
-  isDraggingOver: boolean;
+  $isDraggingOver: boolean;
+  $isDraggingFromThis: boolean;
 }
 
 interface IForm {
@@ -55,8 +56,19 @@ interface IForm {
 }
 
 function Board({ toDos, boardId }: IBoardProps) {
+  const setToDos = useSetRecoilState(toDoState);
   const { register, setValue, handleSubmit } = useForm<IForm>();
-  const onValid = (toDo: IForm) => {
+  const onValid = ({ toDo }: IForm) => {
+    const newToDo = {
+      id: Date.now(),
+      text: toDo,
+    };
+    setToDos((allBoards) => {
+      return {
+        ...allBoards,
+        [boardId]: [newToDo, ...allBoards[boardId]],
+      };
+    });
     setValue("toDo", "");
   };
   return (
@@ -72,8 +84,8 @@ function Board({ toDos, boardId }: IBoardProps) {
       <Droppable droppableId={boardId}>
         {(magic, info) => (
           <Area
-            isDraggingOver={info.isDraggingOver}
-            isDraggingFromThis={Boolean(info.draggingFromThisWith)}
+            $isDraggingOver={info.isDraggingOver}
+            $isDraggingFromThis={Boolean(info.draggingFromThisWith)}
             ref={magic.innerRef}
             {...magic.droppableProps}
           >
